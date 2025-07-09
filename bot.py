@@ -9,6 +9,7 @@ from datetime import datetime
 load_dotenv()
 
 TOKEN = os.getenv('TOKEN')
+RENDER_EXTERNAL_URL = os.getenv('RENDER_EXTERNAL_URL', 'https://solah-reminder.onrender.com')
 async def hello(update:Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(f"Hello {update.effective_user.first_name}")
 
@@ -120,8 +121,21 @@ def main() -> None:
     app.add_handler(CommandHandler("next", next_prayer))
     app.add_handler(CommandHandler("today", today))
 
-    print("Bot is starting...")
-    app.run_polling()
+    if os.getenv('ENVIRONMENT') == 'PRODUCTION':
+        #Webhook config for render
+        PORT = int(os.getenv('PORT', 5000))
+        WEBHOOK_URL = f"{RENDER_EXTERNAL_URL}/webhook"
+
+        print(f"Starting webhook on port {PORT}")
+        app.run_webhook(
+            listen = "0.0.0.0",
+            port = PORT,
+            webhook_url = WEBHOOK_URL,
+            secret_token=os.getenv('WEBHOOK_SECRET')
+        )
+    else:
+        print("Bot is starting...")
+        app.run_polling()
 
 
 if __name__ == '__main__':
