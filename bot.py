@@ -7,11 +7,22 @@ from datetime import datetime, timedelta
 import logging
 import pytz
 # Enable logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+if os.getenv('RENDER'):
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        level=logging.WARNING
+    )
+else:
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        level=logging.INFO
+    )
+# ALWAYS suppress token exposure regardless of environment
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("telegram.ext.Application").setLevel(logging.WARNING)
+
 logger = logging.getLogger(__name__)
+
 
 load_dotenv()
 
@@ -254,7 +265,7 @@ def main() -> None:
         PORT = int(os.getenv('PORT', 5000))
         WEBHOOK_URL = f"{RENDER_EXTERNAL_URL}/webhook"
 
-        logger.info(f"Starting webhook on port {PORT}")
+        logger.warning(f"Starting webhook on port {PORT}")
         logger.info(f"Webhook URL: {WEBHOOK_URL}")
         
         app.run_webhook(
