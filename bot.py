@@ -6,6 +6,9 @@ import api
 from datetime import datetime, timedelta
 import logging
 import pytz
+from http.server import BaseHTTPRequestHandler
+import threading
+import json
 # Enable logging
 if os.getenv('RENDER'):
     logging.basicConfig(
@@ -30,6 +33,27 @@ TOKEN = os.getenv('TOKEN')
 RENDER_EXTERNAL_URL = os.getenv('RENDER_EXTERNAL_URL', 'https://solah-reminder.onrender.com')
 
 user_locations={}
+
+#HTTP Handler for health checks
+
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self): 
+        if self.path == '/' or self.path == '/health':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            response = {
+                "status":"ok",
+                "message":"Solah Reminder Bot is running",
+                "bot":"MySolahReminderBot",
+                "timestamp":datetime.now().isoformat()
+            }
+            self.wfile.write(json.dumps(response).encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+    def log_message(self, format, *args):
+        pass
 def save_user_location(user_id:int, city:str, country:str) -> None:
     """
     Save user's location preference
@@ -249,6 +273,11 @@ async def today(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 #     """
 #     await update.message.reply_text("Location's prayer times are:")
 
+def run_health_check():
+    PORT = int(os.getenv('PORT', 5000))
+    server = HTTPServer('0.0.0.0', PORT, HealthCheckHandler)
+    logger.info(f"Health check server running on port {PORT}")
+    server.serve_forever()
 def main() -> None:
     app = ApplicationBuilder().token(TOKEN).build()
 
@@ -267,6 +296,9 @@ def main() -> None:
 
         logger.warning(f"Starting webhook on port {PORT}")
         logger.info(f"Webhook URL: {WEBHOOK_URL}")
+
+        health.thread= threading.Thread(targer=run_health_chec, daemon=True)
+        health.thread.start()
         
         app.run_webhook(
             listen="0.0.0.0",
@@ -278,7 +310,7 @@ def main() -> None:
     else:
         # Local development: Use polling
         logger.info("Bot is starting in polling mode (local development)...")
-        app.run_polling()
+        app.run_polling(poll_interval=5)
 
 if __name__ == '__main__':
     main()
