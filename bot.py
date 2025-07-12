@@ -131,13 +131,52 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         f"🕌 Welcome to MySolahReminderBot, {user_name}!\n\n"
         f"{location_status}\n\n"
         f"📋 Available Commands:\n"
+        f"/hello - Get a friendly greeting\n"
         f"/next - Get the next prayer time\n"
         f"/today - Get today's prayer schedule\n"
-        f"/hello - Get a friendly greeting\n\n"
+        f"/about - About this bot & developer\n\n"
         f"📍 Set Your Location:\n"
         f"Tap the 📎 button → Location → 'Share Live Location' or 'Send My Current Location'\n"
         f"This ensures accurate prayer times for your area!\n\n"
         f"🕌 Ready to help you stay connected with your prayers!"
+    )
+
+async def about(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Show information about the bot and developer"""
+    about_text = (
+        "🕌 *Solah Reminder Bot*\n\n"
+        "*About:*\n"
+        "A reliable prayer time assistant that helps you stay on track with your daily prayers\\. "
+        "Get accurate prayer times based on your location with support for multiple calculation methods\\.\n\n"
+        
+        "*Key Features:*\n"
+        "• Precise prayer times for any location\n"
+        "• Smart prayer notifications \\(coming soon\\.\\.\\.\\)\n"
+        "• Daily prayer schedule\n"
+        "• Easy location setup\n\n"
+        
+        "*Developer:*\n"
+        "*Ridwan A\\. Adebayo*\n"
+        "A developer passionate about creating beneficial tools\\.\n\n"
+        
+        "*Connect with me:*\n"
+        "• [Telegram](https://t.me/PrinceKay145)\n"
+        "• [GitHub](https://github.com/PrinceKay145)\n"
+        "• [LinkedIn](https://www.linkedin.com/in/princekay145/)\n"
+        "• [X \\(fka Twitter\\)](https://x.com/Princekay145)\n"
+        "• Email: princekay145@gmail\\.com\n\n"
+        
+        "*Support & Feedback:*\n"
+        "Found a bug or have suggestions? Please reach out\\!\n"
+        "Your feedback helps improve this bot for the entire Ummah\\.\n\n"
+        
+        "May Allah accept our prayers\\. 🤲"
+    )
+    
+    await update.message.reply_text(
+        about_text,
+        parse_mode='MarkdownV2',
+        disable_web_page_preview=True
     )
 
 async def next_prayer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -257,6 +296,7 @@ def main() -> None:
     app.add_handler(CommandHandler("next", next_prayer))
     app.add_handler(CommandHandler("today", today))
     app.add_handler(CommandHandler("setlocation", set_location))
+    app.add_handler(CommandHandler("about", about))
     app.add_handler(MessageHandler(filters.LOCATION, handle_location))
 
     # Check if we're on Render (production)
