@@ -297,7 +297,7 @@ def main() -> None:
         logger.warning(f"Starting webhook on port {PORT}")
         logger.info(f"Webhook URL: {WEBHOOK_URL}")
 
-        health.thread= threading.Thread(targer=run_health_chec, daemon=True)
+        health.thread= threading.Thread(targer=run_health_check, daemon=True)
         health.thread.start()
         
         app.run_webhook(
