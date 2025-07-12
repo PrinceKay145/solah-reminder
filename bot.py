@@ -6,7 +6,7 @@ import api
 from datetime import datetime, timedelta
 import logging
 import pytz
-from http.server import BaseHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 import json
 # Enable logging
@@ -275,7 +275,7 @@ async def today(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 def run_health_check():
     PORT = int(os.getenv('PORT', 5000))
-    server = HTTPServer('0.0.0.0', PORT, HealthCheckHandler)
+    server = HTTPServer(('0.0.0.0', PORT), HealthCheckHandler)
     logger.info(f"Health check server running on port {PORT}")
     server.serve_forever()
 def main() -> None:
